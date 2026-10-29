@@ -32,42 +32,7 @@ megaloja-click-collect/
 
 ## 🗄️ Modelo de Dados (SQLite)
 
-O arquivo de banco de dados local fica localizado em `apps/backend/data/click_collect.db`.
-
-```sql
--- Tabela de Lojas Físicas
-CREATE TABLE IF NOT EXISTS lojas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    endereco TEXT NOT NULL,
-    cep TEXT NOT NULL,
-    latitude REAL,
-    longitude REAL
-);
-
--- Tabela de Estoque por Loja
-CREATE TABLE IF NOT EXISTS estoque_loja (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    loja_id INTEGER,
-    produto_id TEXT NOT NULL,
-    quantidade INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (loja_id) REFERENCES lojas(id)
-);
-
--- Tabela de Pedidos Click & Collect
-CREATE TABLE IF NOT EXISTS pedidos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cliente_nome TEXT NOT NULL,
-    cliente_cpf TEXT NOT NULL,
-    produto_id TEXT NOT NULL,
-    loja_id INTEGER,
-    status TEXT CHECK(status IN ('PENDENTE', 'EM_SEPARACAO', 'PRONTO_PARA_RETIRADA', 'ENTREGUE', 'CANCELADO')) DEFAULT 'PENDENTE',
-    codigo_pin TEXT NOT NULL,
-    codigo_qr TEXT NOT NULL,
-    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (loja_id) REFERENCES lojas(id)
-);
-```
+O schema canônico das tabelas `lojas`, `estoque_loja` e `pedidos` está em [`apps/backend/src/db/init.sql`](apps/backend/src/db/init.sql). Os dados demonstrativos ficam em [`apps/backend/src/db/seed.sql`](apps/backend/src/db/seed.sql). Por padrão, o banco local é criado em `apps/backend/data/click_collect.db`.
 
 ---
 
@@ -76,16 +41,10 @@ CREATE TABLE IF NOT EXISTS pedidos (
 ### **Cliente / Checkout**
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `GET` | `/api/stores?cep={cep}&produtoId={id}` | Lista lojas com estoque mínimo (>= 2 unidades) ordenadas por proximidade. |
-| `POST` | `/api/orders` | Cria o pedido com modalidade `CLICK_COLLECT`, reserva o estoque e gera PIN/QR Code. |
-| `GET` | `/api/orders/:id` | Retorna o status atual do pedido para acompanhamento do cliente. |
+| `GET` | `/api/stores?cep={cep}&produto_id={id}` | Lista lojas ativas com pelo menos 2 unidades do produto. A ordenação por CEP é uma aproximação, não uma distância geográfica. |
+| `POST` | `/api/orders` | Cria o pedido `CLICK_COLLECT`, reserva uma unidade em transação e gera PIN e token de QR Code. |
 
-### **Painel Administrativo / Operação da Loja**
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/api/admin/orders?loja_id={id}` | Retorna a fila de pedidos da loja para visualização no Dashboard Kanban. |
-| `PATCH` | `/api/admin/orders/:id/status` | Altera o status (`EM_SEPARACAO`, `PRONTO_PARA_RETIRADA`). |
-| `POST` | `/api/admin/orders/validate` | Bipa/valida o QR Code ou PIN no balcão e altera o status para `ENTREGUE`. |
+Os endpoints de consulta de pedidos e de operação administrativa descritos no fluxo abaixo ficam para a Fase 2 do MVP. O endpoint `GET /health` verifica a disponibilidade da API.
 
 ---
 
@@ -106,7 +65,10 @@ cd apps/backend
 # Instale as dependências
 npm install
 
-# Inicialize o banco de dados e rode a API
+# Crie as tabelas e carregue os dados demonstrativos (opcional)
+npm run db:seed
+
+# Rode a API
 npm run dev
 ```
 > O servidor estará rodando em: `http://localhost:3000`
