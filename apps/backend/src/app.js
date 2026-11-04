@@ -1,6 +1,4 @@
 import express from 'express';
-import orderRoutes from './routes/orderRoutes.js';
-import storeRoutes from './routes/storeRoutes.js';
 
 const app = express();
 
@@ -11,11 +9,12 @@ app.get('/', (_request, response) => {
   response.status(200).json({ message: 'API de pedidos e lojas está funcionando.' });
 });
 
-app.get('/health', (_request, response) => {
+
+
+app.get('/api/health', (_request, response) => {
   response.status(200).json({ status: 'success' });
 });
-app.use('/api/stores', storeRoutes);
-app.use('/api/orders', orderRoutes);
+
 
 app.use((_request, response) => {
   response.status(404).json({
