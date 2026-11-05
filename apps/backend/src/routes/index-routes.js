@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { notFound } from '../middlewares/not-found.js';
 import ordersRoutes from '../orders/orders.routes.js';
+import productsRoutes from '../products/products.routes.js';
 import storesRoutes from '../stores/stores.routes.js';
 
 const router = Router();
@@ -17,6 +18,7 @@ router.get('/health', (_request, response) => {
 });
 
 router.use('/api/stores', storesRoutes);
+router.use('/api/products', productsRoutes);
 router.use('/api/orders', ordersRoutes);
 router.use(notFound);
 

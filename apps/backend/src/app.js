@@ -9,7 +9,9 @@ app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true }));
+
 app.use('/', indexRoutes);
+
 app.use(errorHandler);
 
 export default app;

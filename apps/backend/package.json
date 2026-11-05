@@ -5,18 +5,21 @@
   "type": "module",
   "scripts": {
     "start": "node bin/server.js",
-    "dev": "node --watch bin/server.js"
+    "dev": "node --watch bin/server.js",
+    "seed:stores": "node scripts/seed-stores.js",
+    "seed:products": "node scripts/seed-products.js",
+    "seed:users": "node scripts/seed-users.js"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "debug": "^4.2.0",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "firebase": "^13.2.0",
+    "firebase-admin": "^14.5.0",
     "http": "0.0.1-security",
     "knex": "^0.21.6",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7",
     "zod": "^3.23.8"
   },
   "allowScripts": {

@@ -43,8 +43,15 @@ O schema canônico das tabelas `lojas`, `estoque_loja` e `pedidos` está em [`ap
 | :--- | :--- | :--- |
 | `GET` | `/api/stores?cep={cep}&produto_id={id}` | Lista lojas ativas com pelo menos 2 unidades do produto. A ordenação por CEP é uma aproximação, não uma distância geográfica. |
 | `POST` | `/api/orders` | Cria o pedido `CLICK_COLLECT`, reserva uma unidade em transação e gera PIN e token de QR Code. |
+| `GET` | `/api/products` | Lista os produtos. |
+| `GET` | `/api/products/{id}` | Consulta um produto pelo ID. |
+| `POST` | `/api/products` | Cria um produto; `id` é opcional e pode ser gerado pelo Firestore. |
+| `PUT` | `/api/products/{id}` | Substitui os dados do produto existente. |
+| `DELETE` | `/api/products/{id}` | Exclui o documento do produto. |
 
 Os endpoints de consulta de pedidos e de operação administrativa descritos no fluxo abaixo ficam para a Fase 2 do MVP. O endpoint `GET /health` verifica a disponibilidade da API.
+
+> **Atenção:** atualmente as operações de produtos não exigem autenticação. Restrinja o acesso antes de disponibilizar essa API publicamente.
 
 ---
 
@@ -72,6 +79,17 @@ npm run db:seed
 npm run dev
 ```
 > O servidor estará rodando em: `http://localhost:3000`
+
+Para popular o Firestore com as lojas e produtos de demonstração, configure as credenciais ADC no `.env` do backend e execute:
+
+```bash
+npm run seed:stores
+npm run seed:products
+npm run seed:users
+```
+
+O seed de produtos cria os documentos na coleção `products` e grava cada quantidade na subcoleção `stores/{storeId}/stock`.
+O seed de usuários grava os documentos na coleção `users`; ele não cria contas no Firebase Authentication.
 
 ---
 
