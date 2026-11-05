@@ -41,7 +41,8 @@ O schema canônico das tabelas `lojas`, `estoque_loja` e `pedidos` está em [`ap
 ### **Cliente / Checkout**
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `GET` | `/api/stores?cep={cep}&produto_id={id}` | Lista lojas ativas com pelo menos 2 unidades do produto. A ordenação por CEP é uma aproximação, não uma distância geográfica. |
+| `GET` | `/api/stores` | Lista todas as lojas. |
+| `GET` | `/api/stores?cep={cep}&produto_id={id}` | Filtra lojas ativas pelo CEP e por pelo menos 2 unidades do produto. Os dois parâmetros são obrigatórios para filtrar. |
 | `POST` | `/api/orders` | Cria o pedido `CLICK_COLLECT`, reserva uma unidade em transação e gera PIN e token de QR Code. |
 | `GET` | `/api/products` | Lista os produtos. |
 | `GET` | `/api/products/{id}` | Consulta um produto pelo ID. |
@@ -52,6 +53,8 @@ O schema canônico das tabelas `lojas`, `estoque_loja` e `pedidos` está em [`ap
 Os endpoints de consulta de pedidos e de operação administrativa descritos no fluxo abaixo ficam para a Fase 2 do MVP. O endpoint `GET /health` verifica a disponibilidade da API.
 
 > **Atenção:** atualmente as operações de produtos não exigem autenticação. Restrinja o acesso antes de disponibilizar essa API publicamente.
+
+A documentação interativa Swagger UI fica disponível em `http://localhost:3000/api-docs`, e a especificação OpenAPI em `http://localhost:3000/api-docs.json`.
 
 ---
 

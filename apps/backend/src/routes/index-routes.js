@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import swaggerUi from 'swagger-ui-express';
+import openapi from '../docs/openapi.js';
 import { notFound } from '../middlewares/not-found.js';
 import ordersRoutes from '../orders/orders.routes.js';
 import productsRoutes from '../products/products.routes.js';
@@ -16,6 +18,11 @@ router.get('/', (_request, response) => {
 router.get('/health', (_request, response) => {
   response.status(200).json({ status: 'ok' });
 });
+
+router.get('/api-docs.json', (_request, response) => {
+  response.status(200).json(openapi);
+});
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapi));
 
 router.use('/api/stores', storesRoutes);
 router.use('/api/products', productsRoutes);
