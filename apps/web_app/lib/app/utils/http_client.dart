@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io' show HttpClient;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 class ApiClient {
-  static const String _defaultBaseUrl = 'http://localhost:3000/';
-  static const String _androidBaseUrl = 'http://localhost:3000/';
+  static const String _defaultBaseUrl = 'http://localhost:3000';
+  static const String _androidBaseUrl = 'http://localhost:3000';
 
   final http.Client _client;
   final String baseUrl;
@@ -84,13 +85,18 @@ class ApiClient {
     }
   }
 
-  dynamic _processResponse(http.Response response) {
+   dynamic _processResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return null;
       return jsonDecode(response.body);
     } else {
       String message = 'Erro de comunicação (${response.statusCode})';
       try {
+        _log(
+          response.request!.url.toString(),
+          response.request!.headers,
+          response.body,
+        );
         final decoded = jsonDecode(response.body);
         if (decoded is Map && decoded.containsKey('message')) {
           message = decoded['message'].toString();
@@ -101,4 +107,11 @@ class ApiClient {
       throw Exception(message);
     }
   }
+
+  void _log(String url, Map<String, String> headers, String body) {
+    log('URL: $url');
+    log('Headers: $headers');
+    log('Body: $body');
+  }
+
 }

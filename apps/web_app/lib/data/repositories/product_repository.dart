@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../models/product_model.dart';
 import '../../app/utils/http_client.dart';
 
@@ -10,7 +12,8 @@ class ProductRepository {
   Future<List<ProductModel>> getProducts() async {
     try {
       final response = await _apiClient.get('/api/products');
-      if (response is List) {
+
+      if (response['data'] is List) {
         return response.map((item) => ProductModel.fromJson(item)).toList();
       } else if (response is Map && response['products'] is List) {
         return (response['products'] as List)

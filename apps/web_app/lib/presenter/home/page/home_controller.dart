@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:web_app/app/utils/command.dart';
 import 'package:web_app/data/models/product_model.dart';
 import 'package:web_app/data/repositories/product_repository.dart';
@@ -18,8 +20,10 @@ class HomeController {
     try {
       final list = await _productRepository.getProducts();
       products.setData(list);
+      products.setLoading(false);
     } catch (e) {
       products.setError(e.toString());
+      products.setLoading(false);
     }
   }
 
