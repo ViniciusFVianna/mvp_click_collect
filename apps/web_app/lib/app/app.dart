@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import '../design_system/theme/apptheme/app_theme.dart';
+import 'localization/generated/app_localizations.dart';
 import 'navigation/router_register.dart';
 
 class App extends StatelessWidget {
@@ -10,6 +12,14 @@ class App extends StatelessWidget {
     return MaterialApp.router(
       title: 'Click & Collect E-Commerce',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,

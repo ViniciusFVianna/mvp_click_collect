@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import '../../../design_system/theme/colors/app_colors.dart';
 import 'splash_controller.dart';
@@ -10,11 +11,12 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  final SplashController controller = SplashController();
+  late final SplashController controller;
 
   @override
   void initState() {
     super.initState();
+    controller = GetIt.I<SplashController>();
     controller.onInit();
   }
 

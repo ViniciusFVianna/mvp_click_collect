@@ -1,11 +1,12 @@
-import 'dart:developer';
-
 import 'package:web_app/app/utils/command.dart';
-import 'package:web_app/data/models/product_model.dart';
-import 'package:web_app/data/repositories/product_repository.dart';
+import 'package:web_app/features/products/domain/model/product_model.dart';
+import 'package:web_app/features/products/domain/usecases/get_products_usecase.dart';
 
 class HomeController {
-  final ProductRepository _productRepository = ProductRepository();
+  final GetProductsUsecase _getProducts;
+
+  HomeController({required GetProductsUsecase getProducts})
+      : _getProducts = getProducts;
 
   Command<List<ProductModel>> products = Command<List<ProductModel>>(data: []);
   Command<String> selectedCategory = Command<String>(data: 'Todos');
@@ -17,14 +18,14 @@ class HomeController {
 
   Future<void> fetchProducts() async {
     products.setLoading(true);
-    try {
-      final list = await _productRepository.getProducts();
-      products.setData(list);
-      products.setLoading(false);
-    } catch (e) {
-      products.setError(e.toString());
-      products.setLoading(false);
-    }
+    final result = await _getProducts();
+    result.when(
+      success: (list) {
+        products.setData(list);
+        products.setLoading(false);
+      },
+      exception: (failure) => products.setError(failure.message),
+    );
   }
 
   void selectCategory(String category) {

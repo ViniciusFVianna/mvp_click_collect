@@ -1,3 +1,4 @@
+import 'injection/injector.dart';
 import 'navigation/router_register.dart';
 
 class Setup {
@@ -10,6 +11,7 @@ class Setup {
   }
 
   Future<void> call() async {
+    Injector.I();
     RouterRegister.I();
   }
 }

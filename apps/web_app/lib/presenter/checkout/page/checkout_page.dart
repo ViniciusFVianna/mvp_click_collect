@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
 import '../../../design_system/theme/colors/app_colors.dart';
 import '../../../design_system/input/app_input.dart';
 import '../../../design_system/buttons/base_button.dart';
@@ -14,7 +16,7 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  final CheckoutController controller = CheckoutController();
+  late final CheckoutController controller;
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController nomeController = TextEditingController(text: 'Vinicius Vianna');
@@ -25,6 +27,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
     super.initState();
+    controller = GetIt.I<CheckoutController>();
     controller.onInit(widget.data);
   }
 

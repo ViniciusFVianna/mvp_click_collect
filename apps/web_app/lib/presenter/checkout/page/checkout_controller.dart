@@ -1,13 +1,16 @@
 import 'package:web_app/app/utils/command.dart';
-import 'package:web_app/data/models/order_model.dart';
-import 'package:web_app/data/models/product_model.dart';
-import 'package:web_app/data/models/store_model.dart';
-import 'package:web_app/data/repositories/order_repository.dart';
 import 'package:web_app/app/navigation/app_navigator.dart';
+import 'package:web_app/features/orders/domain/model/order_model.dart';
+import 'package:web_app/features/orders/domain/usecases/create_order_usecase.dart';
+import 'package:web_app/features/products/domain/model/product_model.dart';
+import 'package:web_app/features/stores/domain/model/store_model.dart';
 import 'package:web_app/presenter/order_success/page/order_success_page.dart';
 
 class CheckoutController {
-  final OrderRepository _orderRepository = OrderRepository();
+  final CreateOrderUsecase _createOrder;
+
+  CheckoutController({required CreateOrderUsecase createOrder})
+      : _createOrder = createOrder;
 
   Command<OrderResponseModel?> orderResult = Command<OrderResponseModel?>(data: null);
   Command<bool> isAuthorizedThirdParty = Command<bool>(data: false);
@@ -32,33 +35,39 @@ class CheckoutController {
     String? terceiroNome,
     String? terceiroCpf,
   }) async {
-    if (product == null || store == null) return;
+    if (product == null || store == null) {
+      orderResult.setError('Produto ou loja não selecionado.');
+      return;
+    }
 
     orderResult.setLoading(true);
-    try {
-      final params = CreateOrderParams(
-        clienteNome: clienteNome,
-        clienteCpf: clienteCpf.replaceAll(RegExp(r'\D'), ''),
-        produtoId: product!.id,
-        lojaId: store!.id,
-        modalidadeEntrega: 'CLICK_COLLECT',
-        terceiroAutorizadoNome: isAuthorizedThirdParty.data ? terceiroNome : null,
-        terceiroAutorizadoCpf: isAuthorizedThirdParty.data ? terceiroCpf?.replaceAll(RegExp(r'\D'), '') : null,
-      );
+    final params = CreateOrderParams(
+      clienteNome: clienteNome,
+      clienteCpf: clienteCpf.replaceAll(RegExp(r'\D'), ''),
+      produtoId: product!.id,
+      lojaId: store!.id,
+      modalidadeEntrega: 'CLICK_COLLECT',
+      terceiroAutorizadoNome: isAuthorizedThirdParty.data ? terceiroNome : null,
+      terceiroAutorizadoCpf: isAuthorizedThirdParty.data
+          ? terceiroCpf?.replaceAll(RegExp(r'\D'), '')
+          : null,
+    );
 
-      final result = await _orderRepository.createOrder(params);
-      orderResult.setData(result);
-
-      AppNavigator.pushReplacement(
-        OrderSuccessPage,
-        extra: {
-          'order': result,
-          'product': product,
-          'store': store,
-        },
-      );
-    } catch (e) {
-      orderResult.setError(e.toString());
-    }
+    final result = await _createOrder(params);
+    result.when(
+      success: (order) {
+        orderResult.setData(order);
+        orderResult.setLoading(false);
+        AppNavigator.pushReplacement(
+          OrderSuccessPage,
+          extra: {
+            'order': order,
+            'product': product,
+            'store': store,
+          },
+        );
+      },
+      exception: (failure) => orderResult.setError(failure.message),
+    );
   }
 }

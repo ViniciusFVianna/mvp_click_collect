@@ -1,10 +1,13 @@
 import 'package:web_app/app/utils/command.dart';
-import 'package:web_app/data/models/product_model.dart';
-import 'package:web_app/data/models/store_model.dart';
-import 'package:web_app/data/repositories/store_repository.dart';
+import 'package:web_app/features/products/domain/model/product_model.dart';
+import 'package:web_app/features/stores/domain/model/store_model.dart';
+import 'package:web_app/features/stores/domain/usecases/get_stores_usecase.dart';
 
 class StoreSelectorController {
-  final StoreRepository _storeRepository = StoreRepository();
+  final GetStoresUsecase _getStores;
+
+  StoreSelectorController({required GetStoresUsecase getStores})
+      : _getStores = getStores;
 
   Command<List<StoreModel>> stores = Command<List<StoreModel>>(data: []);
   Command<StoreModel?> selectedStore = Command<StoreModel?>(data: null);
@@ -18,24 +21,26 @@ class StoreSelectorController {
 
   Future<void> fetchStores() async {
     stores.setLoading(true);
-    try {
-      final result = await _storeRepository.getStores(
+    final result = await _getStores(
         cep: cep.data.isNotEmpty ? cep.data : null,
         produtoId: product?.id,
       );
-      stores.setData(result);
-      if (result.isNotEmpty && selectedStore.data == null) {
-        final available = result.firstWhere(
-          (s) => s.stock > 0 && s.status != 'INDISPONIVEL',
-          orElse: () => result.first,
-        );
-        if (available.stock > 0 && available.status != 'INDISPONIVEL') {
-          selectedStore.setData(available);
+    result.when(
+      success: (items) {
+        stores.setData(items);
+        if (items.isNotEmpty && selectedStore.data == null) {
+          final available = items.firstWhere(
+            (store) => store.stock > 0 && store.status != 'INDISPONIVEL',
+            orElse: () => items.first,
+          );
+          if (available.stock > 0 && available.status != 'INDISPONIVEL') {
+            selectedStore.setData(available);
+          }
         }
-      }
-    } catch (e) {
-      stores.setError(e.toString());
-    }
+        stores.setLoading(false);
+      },
+      exception: (failure) => stores.setError(failure.message),
+    );
   }
 
   void setCep(String newCep) {

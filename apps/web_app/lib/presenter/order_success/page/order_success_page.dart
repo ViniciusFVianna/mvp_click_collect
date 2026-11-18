@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/order_model.dart';
-import '../../../data/models/product_model.dart';
-import '../../../data/models/store_model.dart';
+import '../../../features/orders/domain/model/order_model.dart';
+import '../../../features/products/domain/model/product_model.dart';
+import '../../../features/stores/domain/model/store_model.dart';
 import '../../../design_system/theme/colors/app_colors.dart';
 import '../../../design_system/buttons/base_button.dart';
 import '../../../app/navigation/app_navigator.dart';
