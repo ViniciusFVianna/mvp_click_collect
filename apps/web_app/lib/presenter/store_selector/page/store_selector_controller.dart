@@ -1,12 +1,12 @@
-import 'package:web_app/app/utils/command.dart';
+import 'package:web_app/share/util/command.dart';
 import 'package:web_app/features/products/domain/model/product_model.dart';
 import 'package:web_app/features/stores/domain/model/store_model.dart';
 import 'package:web_app/features/stores/domain/usecases/get_stores_usecase.dart';
 
 class StoreSelectorController {
-  final GetStoresUsecase _getStores;
+  final GetStoresUseCase _getStores;
 
-  StoreSelectorController({required GetStoresUsecase getStores})
+  StoreSelectorController({required GetStoresUseCase getStores})
       : _getStores = getStores;
 
   Command<List<StoreModel>> stores = Command<List<StoreModel>>(data: []);

@@ -1,11 +1,11 @@
-import 'package:web_app/app/utils/command.dart';
+import 'package:web_app/share/util/command.dart';
 import 'package:web_app/features/products/domain/model/product_model.dart';
 import 'package:web_app/features/products/domain/usecases/get_products_usecase.dart';
 
 class HomeController {
-  final GetProductsUsecase _getProducts;
+  final GetProductsUseCase _getProducts;
 
-  HomeController({required GetProductsUsecase getProducts})
+  HomeController({required GetProductsUseCase getProducts})
       : _getProducts = getProducts;
 
   Command<List<ProductModel>> products = Command<List<ProductModel>>(data: []);

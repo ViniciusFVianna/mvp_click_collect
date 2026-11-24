@@ -31,7 +31,10 @@ const invalidIdTokenErrors = new Set([
 function getApiKey() {
   const apiKey = process.env.FIREBASE_WEB_API_KEY?.trim();
   if (!apiKey) {
-    throw new HttpError(503, 'A autenticação Firebase não está configurada.');
+    throw new HttpError(
+      503,
+      'FIREBASE_WEB_API_KEY não está configurada no ambiente da API.',
+    );
   }
 
   return apiKey;

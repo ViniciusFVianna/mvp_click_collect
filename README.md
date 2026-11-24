@@ -96,19 +96,42 @@ O seed de usuários grava os documentos na coleção `users`; ele não cria cont
 
 ---
 
-### **2. Executando o Frontend (Flutter Web)**
+### **2. Executando os Frontends (Flutter)**
+
+Inicie o backend em um terminal:
 
 ```bash
-# Acesse a pasta do aplicativo Flutter
+cd apps/backend
+npm start
+```
+
+Para executar a loja virtual no Chrome:
+
+```bash
 cd apps/web_app
-
-# Instale os pacotes e dependências do Flutter
 flutter pub get
-
-# Execute a aplicação no navegador Chrome
 flutter run -d chrome
 ```
-> A aplicação estará acessível em: `http://localhost:8080`
+
+Para executar o painel admin no Chrome, use `apps/front_adm` no lugar de
+`apps/web_app`.
+
+No Android Emulator, execute qualquer uma das aplicações com:
+
+```bash
+flutter run -d emulator-5554
+```
+
+O endereço padrão da API é `http://localhost:3000` na Web e
+`http://10.0.2.2:3000` no Android Emulator. Para um dispositivo físico ou outro
+ambiente, configure `API_BASE_URL`, por exemplo:
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=https://api.example.com
+```
+
+O backend atual ainda não oferece `GET /api/orders`; por isso, a tela de pedidos
+do painel admin exibirá o erro da API até essa rota ser implementada.
 
 ---
 

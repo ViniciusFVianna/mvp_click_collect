@@ -1,19 +1,19 @@
+import '../../../../data/models/product_model.dart';
 import '../../../../share/util/result.dart';
-import '../error/product_failure.dart';
-import '../model/product_model.dart';
-import '../repository/product_repository.dart';
+import '../error/products_failure.dart';
+import '../repository/products_repository.dart';
 
-typedef GetProductsResult = Result<List<ProductModel>, ProductFailure>;
-
-abstract interface class GetProductsUsecase {
-  Future<GetProductsResult> call();
+abstract class GetProductsUseCase {
+  Future<Result<List<ProductModel>, ProductsFailure>> call();
 }
 
-class GetProductsUsecaseImpl implements GetProductsUsecase {
-  final ProductRepository repository;
+class GetProductsUseCaseImpl implements GetProductsUseCase {
+  final ProductsRepository _repository;
 
-  const GetProductsUsecaseImpl({required this.repository});
+  GetProductsUseCaseImpl({required ProductsRepository repository}) : _repository = repository;
 
   @override
-  Future<GetProductsResult> call() => repository.getProducts();
+  Future<Result<List<ProductModel>, ProductsFailure>> call() {
+    return _repository.getProducts();
+  }
 }

@@ -9,27 +9,7 @@ class OrderRepositoryImpl implements OrderRepository {
   final OrderDatasource _datasource;
 
   const OrderRepositoryImpl({required OrderDatasource dataSource})
-      : _datasource = dataSource;
-
-  @override
-  Future<Result<List<OrderResponseModel>, OrderFailure>> getOrders() async {
-    final response = await _datasource.getOrders();
-    return response.when(
-      success: (records) {
-        try {
-          return Success<List<OrderResponseModel>, OrderFailure>(
-            records.map(OrderResponseModel.fromMap).toList(),
-          );
-        } catch (error) {
-          errorLog(error.toString(), tag: 'OrderRepositoryImpl.getOrders');
-          return Failure<List<OrderResponseModel>, OrderFailure>(
-            OrderFailure(error.toString()),
-          );
-        }
-      },
-      exception: (exception) => Failure(OrderFailure.fromException(exception)),
-    );
-  }
+    : _datasource = dataSource;
 
   @override
   Future<Result<OrderResponseModel, OrderFailure>> createOrder(

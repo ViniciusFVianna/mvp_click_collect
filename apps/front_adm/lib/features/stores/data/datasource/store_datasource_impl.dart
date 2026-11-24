@@ -10,11 +10,9 @@ class StoreDatasourceImpl implements StoreDatasource {
   final CustomClientHttp _http;
   final Uri _baseUri;
 
-  StoreDatasourceImpl({
-    required CustomClientHttp http,
-    Uri? baseUri,
-  })  : _http = http,
-        _baseUri = baseUri ?? AppSettings.apiBaseUri;
+  StoreDatasourceImpl({required CustomClientHttp http, Uri? baseUri})
+    : _http = http,
+      _baseUri = baseUri ?? AppSettings.apiBaseUri;
 
   @override
   Future<Result<List<Map<String, dynamic>>, Exception>> getStores({

@@ -1,6 +1,5 @@
-import 'package:get_it/get_it.dart';
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
-import '../../../design_system/theme/colors/app_colors.dart';
 import 'splash_controller.dart';
 
 class SplashPage extends StatefulWidget {
@@ -11,12 +10,11 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  late final SplashController controller;
+  final SplashController controller = SplashController();
 
   @override
   void initState() {
     super.initState();
-    controller = GetIt.I<SplashController>();
     controller.onInit();
   }
 
@@ -35,7 +33,7 @@ class _SplashPageState extends State<SplashPage> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),

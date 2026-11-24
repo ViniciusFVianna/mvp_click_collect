@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:front_adm/data/models/product_model.dart';
+import 'package:front_adm/features/products/domain/model/product_model.dart';
 import 'package:front_adm/design_system/tile/product_tile.dart';
 
 void main() {

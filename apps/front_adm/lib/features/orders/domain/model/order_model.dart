@@ -86,17 +86,17 @@ class OrderResponseModel implements Model {
 
   @override
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'cliente_nome': clienteNome,
-        'cliente_cpf': clienteCpf,
-        'produto_id': produtoId,
-        'loja_id': lojaId,
-        'modalidade_entrega': modalidadeEntrega,
-        'status': status,
-        if (createdAt != null) 'created_at': createdAt,
-        if (pin != null) 'pin': pin,
-        if (qrToken != null) 'qrToken': qrToken,
-      };
+    'id': id,
+    'cliente_nome': clienteNome,
+    'cliente_cpf': clienteCpf,
+    'produto_id': produtoId,
+    'loja_id': lojaId,
+    'modalidade_entrega': modalidadeEntrega,
+    'status': status,
+    if (createdAt != null) 'created_at': createdAt,
+    if (pin != null) 'pin': pin,
+    if (qrToken != null) 'qrToken': qrToken,
+  };
 
   Map<String, dynamic> toJson() => toMap();
 }

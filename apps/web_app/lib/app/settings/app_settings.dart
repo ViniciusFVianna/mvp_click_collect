@@ -1,28 +1,31 @@
 import 'package:flutter/foundation.dart';
 
-enum AppEnvironment { dev, qa, prod }
+enum Environment { dev, qa, prod }
 
 class AppSettings {
-  AppSettings._();
+  final Environment environment;
+  final String baseUrl;
 
-  static const _environmentName =
-      String.fromEnvironment('APP_ENV', defaultValue: 'dev');
-  static const _configuredApiBaseUrl = String.fromEnvironment('API_BASE_URL');
+  const AppSettings({
+    this.environment = Environment.dev,
+    this.baseUrl = defaultBaseUrl,
+  });
 
-  static AppEnvironment get environment => switch (_environmentName) {
-        'dev' => AppEnvironment.dev,
-        'qa' => AppEnvironment.qa,
-        'prod' => AppEnvironment.prod,
-        _ => throw StateError('APP_ENV inválido: $_environmentName.'),
-      };
+  static const String defaultBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:3000',
+  );
 
-  static String get apiBaseUrl {
-    if (_configuredApiBaseUrl.isNotEmpty) return _configuredApiBaseUrl;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:3000';
+  static Uri get apiBaseUri {
+    const configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
+    if (configuredBaseUrl.isNotEmpty) {
+      return Uri.parse(configuredBaseUrl);
     }
-    return 'http://localhost:3000';
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      return Uri.parse('http://10.0.2.2:3000');
+    }
+    return Uri.parse(defaultBaseUrl);
   }
 
-  static Uri get apiBaseUri => Uri.parse(apiBaseUrl);
+  static Uri get baseUrlUri => apiBaseUri;
 }

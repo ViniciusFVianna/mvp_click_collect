@@ -1,52 +1,57 @@
 import 'package:front_adm/app/utils/command.dart';
-import 'package:front_adm/features/orders/domain/model/order_model.dart';
-import 'package:front_adm/features/orders/domain/usecases/get_orders_usecase.dart';
+import 'package:front_adm/features/stores/domain/model/store_model.dart';
+import 'package:front_adm/features/stores/domain/usecases/get_stores_usecase.dart';
 
 class HomeController {
-  final GetOrdersUsecase _getOrders;
 
-  HomeController({required GetOrdersUsecase getOrders})
-      : _getOrders = getOrders;
-
-  Command<List<OrderResponseModel>> orders = Command<List<OrderResponseModel>>(data: []);
-  Command<String> selectedStatusFilter = Command<String>(data: 'TODOS');
+  Command<List<StoreModel>> stores = Command<List<StoreModel>>(data: []);
   Command<String> searchQuery = Command<String>(data: '');
+  Command<String> cep = Command<String>(data: '');
+  Command<String> produtoId = Command<String>(data: '');
+
+ GetStoresUseCase _getStores = GetIt.I<GetStoresUseCase>();
 
   void onInit() {
-    fetchOrders();
+    fetchStores();
   }
 
-  Future<void> fetchOrders() async {
-    orders.setLoading(true);
-    final result = await _getOrders();
+  Future<void> fetchStores() async {
+    stores.setLoading(true);
+    final result = await _getStores(
+      cep: cep.data.isEmpty ? null : cep.data,
+    );
     result.when(
       success: (list) {
-        orders.setData(list);
-        orders.setLoading(false);
+        stores.setData(list);
+        stores.setLoading(false);
       },
-      exception: (failure) => orders.setError(failure.message),
+      exception: (failure) => stores.setError(failure.message),
     );
-  }
-
-  void filterByStatus(String status) {
-    selectedStatusFilter.setData(status);
   }
 
   void setSearchQuery(String query) {
     searchQuery.setData(query);
   }
 
-  List<OrderResponseModel> get filteredOrders {
-    return orders.data.where((order) {
-      final matchesStatus = selectedStatusFilter.data == 'TODOS' ||
-          order.status.toUpperCase() == selectedStatusFilter.data.toUpperCase();
-      final matchesSearch = searchQuery.data.isEmpty ||
-          order.id.toLowerCase().contains(searchQuery.data.toLowerCase()) ||
-          order.clienteNome.toLowerCase().contains(searchQuery.data.toLowerCase()) ||
-          order.clienteCpf.contains(searchQuery.data);
-      return matchesStatus && matchesSearch;
-    }).toList();
+  void setCep(String query) {
+    cep.setData(query);
   }
 
-  List<String> get statusFilters => ['TODOS', 'PENDENTE', 'EM_SEPARACAO', 'PRONTO_PARA_RETIRADA', 'ENTREGUE'];
+  void setProdutoId(String query) {
+    produtoId.setData(query);
+  }
+
+  List<StoreModel> get filteredStores {
+    return stores.data.where((store) {
+      final matchesSearch =
+          searchQuery.data.isEmpty ||
+          store.id.toLowerCase().contains(searchQuery.data.toLowerCase()) ||
+          store.name.toLowerCase().contains(searchQuery.data.toLowerCase()) ||
+          store.address.toLowerCase().contains(
+            searchQuery.data.toLowerCase(),
+          ) ||
+          store.zipCode.contains(searchQuery.data);
+      return matchesSearch;
+    }).toList();
+  }
 }

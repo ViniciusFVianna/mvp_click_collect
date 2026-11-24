@@ -11,22 +11,8 @@ class OrderDatasourceImpl implements OrderDatasource {
   final CustomClientHttp _http;
   final Uri _baseUri;
 
-  OrderDatasourceImpl({
-    required this._http,
-    Uri? baseUri,
-  })  : _baseUri = baseUri ?? AppSettings.apiBaseUri;
-
-  @override
-  Future<Result<List<Map<String, dynamic>>, Exception>> getOrders() async {
-    try {
-      return HttpResponseParser.asList(
-        await _http.get(_baseUri.resolve('/api/orders')),
-      );
-    } catch (error) {
-      errorLog(error.toString(), tag: 'OrderDatasourceImpl.getOrders');
-      return Failure(Exception(error.toString()));
-    }
-  }
+  OrderDatasourceImpl({required this._http, Uri? baseUri})
+    : _baseUri = baseUri ?? AppSettings.apiBaseUri;
 
   @override
   Future<Result<Map<String, dynamic>, Exception>> createOrder(

@@ -15,6 +15,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    controller = SplashController();
     controller.onInit();
   }
 

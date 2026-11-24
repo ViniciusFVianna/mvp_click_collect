@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:front_adm/presenter/auth/routes/auth_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'router_base.dart';
 import '../../presenter/splash/routes/splash_routes.dart';
+import '../../presenter/auth/routes/auth_routes.dart';
 import '../../presenter/home/routes/home_routes.dart';
 
 typedef PageBuilder<T extends Widget, E> = T Function(E? extra);

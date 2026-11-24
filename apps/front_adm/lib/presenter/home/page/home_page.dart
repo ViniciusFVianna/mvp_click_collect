@@ -1,9 +1,8 @@
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../features/orders/domain/model/order_model.dart';
-import '../../../design_system/theme/colors/app_colors.dart';
-import '../../../design_system/input/app_input.dart';
+import '../../../features/stores/domain/model/store_model.dart';
 import 'home_controller.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,16 +20,18 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     controller = GetIt.I<HomeController>();
     controller.onInit();
-    controller.orders.addListener(_onStateChanged);
-    controller.selectedStatusFilter.addListener(_onStateChanged);
+    controller.stores.addListener(_onStateChanged);
     controller.searchQuery.addListener(_onStateChanged);
+    controller.cep.addListener(_onStateChanged);
+    controller.produtoId.addListener(_onStateChanged);
   }
 
   @override
   void dispose() {
-    controller.orders.removeListener(_onStateChanged);
-    controller.selectedStatusFilter.removeListener(_onStateChanged);
+    controller.stores.removeListener(_onStateChanged);
     controller.searchQuery.removeListener(_onStateChanged);
+    controller.cep.removeListener(_onStateChanged);
+    controller.produtoId.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredOrders = controller.filteredOrders;
+    final filteredStores = controller.filteredStores;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,8 +55,8 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: controller.fetchOrders,
-            tooltip: 'Atualizar Pedidos',
+            onPressed: controller.fetchStores,
+            tooltip: 'Atualizar lojas',
           ),
         ],
       ),
@@ -67,87 +68,99 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 AppInput(
-                  label: 'Buscar Pedido',
-                  hint: 'Buscar por ID, Nome do Cliente ou CPF...',
+                  label: 'Buscar loja',
+                  hint: 'Buscar por ID, nome, endereço ou CEP...',
                   prefixIcon: Icons.search,
                   onChanged: controller.setSearchQuery,
                 ),
                 const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: controller.statusFilters.map((status) {
-                      final isSelected = controller.selectedStatusFilter.data == status;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(_formatStatusLabel(status)),
-                          selected: isSelected,
-                          selectedColor: AppColors.primaryBase,
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textPrimary,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                          onSelected: (_) => controller.filterByStatus(status),
-                        ),
-                      );
-                    }).toList(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppInput(
+                        label: 'CEP',
+                        hint: '93260-000',
+                        prefixIcon: Icons.pin_drop,
+                        onChanged: controller.setCep,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppInput(
+                        label: 'Produto',
+                        hint: 'produto_id',
+                        prefixIcon: Icons.shopping_bag,
+                        onChanged: controller.setProdutoId,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: controller.fetchStores,
+                    icon: const Icon(Icons.search),
+                    label: const Text('Buscar lojas'),
                   ),
                 ),
               ],
             ),
           ),
           Expanded(
-            child: controller.orders.isLoading
+            child: controller.stores.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : controller.orders.error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: AppColors.error,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Erro ao carregar pedidos: ${controller.orders.error}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: controller.fetchOrders,
-                              child: const Text('Tentar novamente'),
-                            ),
-                          ],
+                : controller.stores.error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: AppColors.error,
                         ),
-                      )
-                : filteredOrders.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Nenhum pedido encontrado.',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 16),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Erro ao carregar lojas: ${controller.stores.error}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredOrders.length,
-                        itemBuilder: (context, index) {
-                          final order = filteredOrders[index];
-                          return _buildOrderCard(order);
-                        },
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: controller.fetchStores,
+                          child: const Text('Tentar novamente'),
+                        ),
+                      ],
+                    ),
+                  )
+                : filteredStores.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Nenhuma loja encontrada.',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 16,
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredStores.length,
+                    itemBuilder: (context, index) {
+                      final store = filteredStores[index];
+                      return _buildStoreCard(store);
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderCard(OrderResponseModel order) {
+  Widget _buildStoreCard(StoreModel store) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
@@ -161,51 +174,59 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  order.id,
+                  store.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: AppColors.primaryBase,
                   ),
                 ),
-                _buildStatusBadge(order.status),
+                Text(
+                  '${store.stock} unidades',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
             const Divider(height: 20),
             Row(
               children: [
-                const Icon(Icons.person, size: 18, color: AppColors.textSecondary),
-                const SizedBox(width: 8),
-                Text(
-                  order.clienteNome,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                    color: AppColors.textPrimary,
-                  ),
+                const Icon(
+                  Icons.store,
+                  size: 18,
+                  color: AppColors.textSecondary,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '(${order.clienteCpf})',
-                  style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  store.id,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.store, size: 18, color: AppColors.textSecondary),
-                const SizedBox(width: 8),
-                Text(
-                  'Loja: ${order.lojaId}',
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                const Icon(
+                  Icons.location_on,
+                  size: 18,
+                  color: AppColors.textSecondary,
                 ),
-                const SizedBox(width: 16),
-                const Icon(Icons.shopping_bag, size: 18, color: AppColors.textSecondary),
                 const SizedBox(width: 8),
-                Text(
-                  'Produto: ${order.produtoId}',
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                Expanded(
+                  child: Text(
+                    store.address.isNotEmpty
+                        ? '${store.address} - CEP ${store.zipCode}'
+                        : 'CEP ${store.zipCode}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -213,58 +234,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color color;
-    switch (status.toUpperCase()) {
-      case 'PENDENTE':
-        color = AppColors.warning;
-        break;
-      case 'EM_SEPARACAO':
-        color = AppColors.primaryLight;
-        break;
-      case 'PRONTO_PARA_RETIRADA':
-        color = AppColors.accentOrange;
-        break;
-      case 'ENTREGUE':
-        color = AppColors.success;
-        break;
-      default:
-        color = AppColors.textMuted;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        _formatStatusLabel(status),
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-
-  String _formatStatusLabel(String status) {
-    switch (status.toUpperCase()) {
-      case 'TODOS':
-        return 'Todos';
-      case 'PENDENTE':
-        return 'Pendente';
-      case 'EM_SEPARACAO':
-        return 'Em Separação';
-      case 'PRONTO_PARA_RETIRADA':
-        return 'Pronto p/ Retirada';
-      case 'ENTREGUE':
-        return 'Entregue';
-      default:
-        return status;
-    }
   }
 }

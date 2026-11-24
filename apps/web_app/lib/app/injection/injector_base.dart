@@ -1,3 +1,3 @@
-abstract interface class InjectorBase {
+abstract class InjectorBase {
   void call();
 }

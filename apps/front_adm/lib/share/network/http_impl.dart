@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import '../boundaries/secure_storage_facade.dart';
 import 'custom_client_http.dart';
 import 'custom_http_response.dart';
 
 class HttpImpl implements CustomClientHttp {
   final http.Client httpClient;
+  final SecureStorageFacade? secureStorage;
 
-  HttpImpl({required this.httpClient});
+  HttpImpl({required this.httpClient, this.secureStorage});
 
   @override
   Future<CustomHttpResponse> get(Uri uri, {Map<String, String>? headers}) async {
@@ -63,7 +65,14 @@ class HttpImpl implements CustomClientHttp {
   }
 
   Future<Map<String, String>> _header(Map<String, String>? headers) async {
-    return headers ?? {'Content-Type': 'application/json'};
+    final map = headers ?? {'Content-Type': 'application/json'};
+    if (secureStorage != null) {
+      final token = await secureStorage!.read('auth_token');
+      if (token != null && token.isNotEmpty) {
+        map['Authorization'] = 'Bearer $token';
+      }
+    }
+    return map;
   }
 
   Map<String, dynamic> _toMap(Uint8List bodyBytes) {

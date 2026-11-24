@@ -1,20 +1,24 @@
-import '../../../../share/util/result.dart';
-import '../error/order_failure.dart';
 import '../model/order_model.dart';
-import '../repository/order_repository.dart';
+import '../../../../share/util/result.dart';
+import '../error/orders_failure.dart';
+import '../repository/orders_repository.dart';
 
-typedef CreateOrderResult = Result<OrderResponseModel, OrderFailure>;
-
-abstract interface class CreateOrderUsecase {
-  Future<CreateOrderResult> call(CreateOrderParams params);
+abstract class CreateOrderUseCase {
+  Future<Result<OrderResponseModel, OrdersFailure>> call(
+    CreateOrderParams params,
+  );
 }
 
-class CreateOrderUsecaseImpl implements CreateOrderUsecase {
-  final OrderRepository repository;
+class CreateOrderUseCaseImpl implements CreateOrderUseCase {
+  final OrdersRepository _repository;
 
-  const CreateOrderUsecaseImpl({required this.repository});
+  CreateOrderUseCaseImpl({required OrdersRepository repository})
+    : _repository = repository;
 
   @override
-  Future<CreateOrderResult> call(CreateOrderParams params) =>
-      repository.createOrder(params);
+  Future<Result<OrderResponseModel, OrdersFailure>> call(
+    CreateOrderParams params,
+  ) {
+    return _repository.createOrder(params);
+  }
 }

@@ -33,20 +33,17 @@ class StoreModel implements Model {
     return StoreModel(
       id: map['id']?.toString() ?? map['loja_id']?.toString() ?? '',
       name: map['name']?.toString() ?? map['nome']?.toString() ?? '',
-      address: _formatAddress(
-        address ?? map['endereco'],
-        addressFields,
-      ),
-      zipCode: addressFields['zip_code']?.toString() ??
+      address: _formatAddress(address ?? map['endereco'], addressFields),
+      zipCode:
+          addressFields['zip_code']?.toString() ??
           map['zip_code']?.toString() ??
           map['cep']?.toString() ??
           '',
       distance: map['distance']?.toString() ?? map['distancia']?.toString(),
       stock: stock,
-      status: map['status']?.toString() ??
-          (map['active'] == false || stock < 1
-              ? 'INDISPONIVEL'
-              : 'DISPONIVEL'),
+      status:
+          map['status']?.toString() ??
+          (map['active'] == false || stock < 1 ? 'INDISPONIVEL' : 'DISPONIVEL'),
     );
   }
 
@@ -69,14 +66,14 @@ class StoreModel implements Model {
 
   @override
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'name': name,
-        'address': address,
-        'zip_code': zipCode,
-        'distance': distance,
-        'stock': stock,
-        'status': status,
-      };
+    'id': id,
+    'name': name,
+    'address': address,
+    'zip_code': zipCode,
+    'distance': distance,
+    'stock': stock,
+    'status': status,
+  };
 
   Map<String, dynamic> toJson() => toMap();
 }

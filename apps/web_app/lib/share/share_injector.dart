@@ -12,7 +12,10 @@ class ShareInjector implements InjectorBase {
     GetIt.I.registerLazySingleton<SecureStorageFacade>(() => SecureStorageFacade());
     GetIt.I.registerLazySingleton<SpeechFacade>(() => SpeechFacade());
     GetIt.I.registerLazySingleton<CustomClientHttp>(
-      () => HttpImpl(httpClient: http.Client()),
+      () => HttpImpl(
+        httpClient: http.Client(),
+        secureStorage: GetIt.I<SecureStorageFacade>(),
+      ),
     );
   }
 }

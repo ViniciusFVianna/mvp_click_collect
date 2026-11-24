@@ -191,6 +191,7 @@ const openapi = {
           403: errorResponse,
           429: errorResponse,
           503: errorResponse,
+          502: errorResponse,
           500: errorResponse,
         },
       },
@@ -216,6 +217,24 @@ const openapi = {
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/SessionResponse' },
+                example: {
+                  data: {
+                    idToken: '<novo-firebase-id-token>',
+                    refreshToken: '<novo-firebase-refresh-token>',
+                    expiresIn: '3600',
+                    user: {
+                      id: 'user_admin_01',
+                      uid: 'firebase-user-uid',
+                      name: 'Carlos Gerente',
+                      email: 'admin@example.com',
+                      role: 'admin',
+                      store_id: null,
+                      permissions: ['manage_users'],
+                      active: true,
+                      created_at: '2026-01-10T10:00:00Z',
+                    },
+                  },
+                },
               },
             },
           },
@@ -223,6 +242,7 @@ const openapi = {
           401: errorResponse,
           403: errorResponse,
           503: errorResponse,
+          502: errorResponse,
           500: errorResponse,
         },
       },

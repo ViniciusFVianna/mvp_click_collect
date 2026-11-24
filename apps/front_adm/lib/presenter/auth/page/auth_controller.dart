@@ -1,8 +1,29 @@
-import 'package:front_adm/app/utils/command.dart';
+import 'package:front_adm/features/auth/domain/usecases/login_usecase.dart';
+import 'package:front_adm/share/util/command.dart';
 
-enum AuthState {initial, loading, success, failure}
 class AuthController {
-  Command<AuthState> state = Command<AuthState>(data: AuthState.initial);
+  final LoginUseCase _loginUseCase;
 
-  void onInit(){}
+  Command<String?> tokenState = Command<String?>(data: null);
+  Command<String?> errorMessage = Command<String?>(data: null);
+
+  AuthController(this._loginUseCase);
+
+  Future<void> login(String email, String password) async {
+    tokenState.setLoading(true);
+    errorMessage.setData(null);
+
+    final result = await _loginUseCase(email, password);
+
+    result.when(
+      success: (token) {
+        tokenState.setData(token);
+        tokenState.setLoading(false);
+      },
+      exception: (failure) {
+        errorMessage.setData(failure.message);
+        tokenState.setLoading(false);
+      },
+    );
+  }
 }

@@ -1,7 +1,5 @@
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import '../design_system/theme/apptheme/app_theme.dart';
-import 'localization/generated/app_localizations.dart';
 import 'navigation/router_register.dart';
 
 class App extends StatelessWidget {
@@ -12,16 +10,22 @@ class App extends StatelessWidget {
     return MaterialApp.router(
       title: 'Painel Admin - Click & Collect',
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.primaryBase,
+          primary: AppColors.primaryBase,
+          secondary: AppColors.accentOrange,
+          surface: AppColors.backgroundCard,
+        ),
+        scaffoldBackgroundColor: AppColors.backgroundLight,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.primaryBase,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: false,
+        ),
+      ),
       themeMode: ThemeMode.light,
       routerConfig: RouterRegister.I.router,
     );

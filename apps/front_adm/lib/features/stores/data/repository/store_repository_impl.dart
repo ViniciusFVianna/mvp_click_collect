@@ -9,7 +9,7 @@ class StoreRepositoryImpl implements StoreRepository {
   final StoreDatasource _datasource;
 
   const StoreRepositoryImpl({required StoreDatasource dataSource})
-      : _datasource = dataSource;
+    : _datasource = dataSource;
 
   @override
   Future<Result<List<StoreModel>, StoreFailure>> getStores({
