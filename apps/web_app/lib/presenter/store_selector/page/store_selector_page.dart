@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/product_model.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../features/products/domain/model/product_model.dart';
 import '../../../design_system/theme/colors/app_colors.dart';
 import '../../../design_system/tile/store_tile.dart';
 import '../../../design_system/input/app_input.dart';
@@ -18,12 +20,13 @@ class StoreSelectorPage extends StatefulWidget {
 }
 
 class _StoreSelectorPageState extends State<StoreSelectorPage> {
-  final StoreSelectorController controller = StoreSelectorController();
+  late final StoreSelectorController controller;
   final TextEditingController cepTextController = TextEditingController(text: '01310-100');
 
   @override
   void initState() {
     super.initState();
+    controller = GetIt.I<StoreSelectorController>();
     controller.onInit(widget.product);
   }
 

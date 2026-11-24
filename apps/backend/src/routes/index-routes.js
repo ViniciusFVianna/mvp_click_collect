@@ -2,9 +2,11 @@ import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import openapi from '../docs/openapi.js';
 import { notFound } from '../middlewares/not-found.js';
+import authRoutes from '../auth/auth.routes.js';
 import ordersRoutes from '../orders/orders.routes.js';
 import productsRoutes from '../products/products.routes.js';
 import storesRoutes from '../stores/stores.routes.js';
+import usersRoutes from '../users/users.routes.js';
 
 const router = Router();
 
@@ -25,6 +27,8 @@ router.get('/api-docs.json', (_request, response) => {
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapi));
 
 router.use('/api/stores', storesRoutes);
+router.use('/api/auth', authRoutes);
+router.use('/api/users', usersRoutes);
 router.use('/api/products', productsRoutes);
 router.use('/api/orders', ordersRoutes);
 router.use(notFound);

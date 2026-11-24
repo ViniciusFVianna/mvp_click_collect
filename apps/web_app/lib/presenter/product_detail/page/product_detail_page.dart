@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/product_model.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../features/products/domain/model/product_model.dart';
 import '../../../design_system/theme/colors/app_colors.dart';
 import '../../../design_system/buttons/base_button.dart';
 import '../../../app/navigation/app_navigator.dart';
@@ -16,11 +18,12 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  final ProductDetailController controller = ProductDetailController();
+  late final ProductDetailController controller;
 
   @override
   void initState() {
     super.initState();
+    controller = GetIt.I<ProductDetailController>();
     controller.onInit(widget.product);
   }
 

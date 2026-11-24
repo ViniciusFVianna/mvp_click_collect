@@ -1,11 +1,12 @@
 import 'dotenv/config';
+import { getAuth } from 'firebase-admin/auth';
 import { db } from '../src/config/firebase.js';
 
 const users = [
   {
     id: 'user_admin_01',
     name: 'Carlos Gerente',
-    email: 'carlos.admin@megaloja.com',
+    email: 'carlos.admin@megaloja.com.br',
     role: 'admin',
     store_id: null,
     permissions: [
@@ -50,7 +51,43 @@ const users = [
   },
 ];
 
+async function verifySeedAdminEmail() {
+  if (process.env.SEED_ADMIN_EMAIL_VERIFIED !== 'true') {
+    return;
+  }
+
+  if (!['development', 'test'].includes(process.env.NODE_ENV)) {
+    throw new Error(
+      'SEED_ADMIN_EMAIL_VERIFIED requer NODE_ENV=development ou NODE_ENV=test.',
+    );
+  }
+
+  const adminUser = users.find((user) => user.role === 'admin');
+  const auth = getAuth();
+  let authUser;
+
+  try {
+    authUser = await auth.getUserByEmail(adminUser.email);
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      throw new Error(
+        `Crie a conta ${adminUser.email} no Firebase Authentication antes de marcá-la como verificada.`,
+        { cause: error },
+      );
+    }
+
+    throw error;
+  }
+
+  if (!authUser.emailVerified) {
+    await auth.updateUser(authUser.uid, { emailVerified: true });
+    console.log(`E-mail do admin ${adminUser.email} marcado como verificado.`);
+  }
+}
+
 async function seedUsers() {
+  await verifySeedAdminEmail();
+
   const batch = db.batch();
   const usersCollection = db.collection('users');
 
@@ -65,7 +102,7 @@ async function seedUsers() {
 try {
   await seedUsers();
 } catch (error) {
-  console.error('Falha ao gravar os usuários no Firestore:', error);
+  console.error('Falha ao executar o seed de usuários:', error);
   process.exitCode = 1;
 } finally {
   await db.terminate();

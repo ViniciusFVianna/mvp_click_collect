@@ -42,11 +42,13 @@ const openapi = {
     title: 'API Click & Collect',
     version: '1.0.0',
     description:
-      'API do backend Click & Collect. As operações de produtos não exigem autenticação atualmente.',
+      'API do backend Click & Collect. As rotas de autenticação e consulta de usuários exigem conta admin ativa.',
   },
   servers: [{ url: 'http://localhost:3000', description: 'Servidor local' }],
   tags: [
     { name: 'Geral', description: 'Informações e disponibilidade da API.' },
+    { name: 'Autenticação', description: 'Login e renovação de sessão admin.' },
+    { name: 'Usuários', description: 'Consulta de usuários por administradores.' },
     { name: 'Lojas', description: 'Consulta de lojas e estoque disponível.' },
     { name: 'Produtos', description: 'Cadastro e manutenção de produtos.' },
     { name: 'Pedidos', description: 'Criação de pedidos Click & Collect.' },
@@ -136,6 +138,194 @@ const openapi = {
           },
           400: errorResponse,
           500: { description: 'Erro interno do servidor.' },
+        },
+      },
+    },
+    '/api/auth/login': {
+      post: {
+        tags: ['Autenticação'],
+        summary: 'Autentica um administrador com e-mail e senha',
+        description:
+          'As credenciais são validadas pelo Firebase Authentication. O e-mail precisa estar verificado e o perfil correspondente na collection users precisa ter active=true e role=admin.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/LoginInput' },
+              example: {
+                email: 'admin@example.com',
+                password: '<senha>',
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Sessão admin criada.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SessionResponse' },
+                example: {
+                  data: {
+                    idToken: '<firebase-id-token>',
+                    refreshToken: '<firebase-refresh-token>',
+                    expiresIn: '3600',
+                    user: {
+                      id: 'user_admin_01',
+                      uid: 'firebase-user-uid',
+                      name: 'Carlos Gerente',
+                      email: 'admin@example.com',
+                      role: 'admin',
+                      store_id: null,
+                      permissions: ['manage_users'],
+                      active: true,
+                      created_at: '2026-01-10T10:00:00Z',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: errorResponse,
+          401: errorResponse,
+          403: errorResponse,
+          429: errorResponse,
+          503: errorResponse,
+          502: errorResponse,
+          500: errorResponse,
+        },
+      },
+    },
+    '/api/auth/refresh': {
+      post: {
+        tags: ['Autenticação'],
+        summary: 'Renova uma sessão admin',
+        description:
+          'Recebe o refresh token do Firebase. A sessão só é renovada se o usuário continuar com e-mail verificado e perfil admin ativo.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RefreshInput' },
+              example: { refreshToken: '<firebase-refresh-token>' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Sessão renovada.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SessionResponse' },
+                example: {
+                  data: {
+                    idToken: '<novo-firebase-id-token>',
+                    refreshToken: '<novo-firebase-refresh-token>',
+                    expiresIn: '3600',
+                    user: {
+                      id: 'user_admin_01',
+                      uid: 'firebase-user-uid',
+                      name: 'Carlos Gerente',
+                      email: 'admin@example.com',
+                      role: 'admin',
+                      store_id: null,
+                      permissions: ['manage_users'],
+                      active: true,
+                      created_at: '2026-01-10T10:00:00Z',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: errorResponse,
+          401: errorResponse,
+          403: errorResponse,
+          503: errorResponse,
+          502: errorResponse,
+          500: errorResponse,
+        },
+      },
+    },
+    '/api/auth/me': {
+      get: {
+        tags: ['Autenticação'],
+        summary: 'Retorna o perfil admin da sessão atual',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Perfil admin autenticado.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: { $ref: '#/components/schemas/User' },
+                  },
+                },
+              },
+            },
+          },
+          401: errorResponse,
+          403: errorResponse,
+        },
+      },
+    },
+    '/api/users': {
+      get: {
+        tags: ['Usuários'],
+        summary: 'Lista ou filtra usuários da collection users',
+        description:
+          'Requer token Firebase válido de um usuário admin ativo. Use o botão Authorize e informe o ID token. email faz busca exata; role filtra pela função. Informe no máximo um desses filtros. A resposta é paginada.',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'email',
+            in: 'query',
+            description: 'Busca exata pelo e-mail do perfil.',
+            schema: { type: 'string', format: 'email' },
+          },
+          {
+            name: 'role',
+            in: 'query',
+            description: 'Filtra usuários por função.',
+            schema: { type: 'string', enum: ['admin', 'stock', 'client'] },
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 },
+          },
+          {
+            name: 'cursor',
+            in: 'query',
+            description: 'Valor nextCursor recebido na resposta anterior.',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Usuários encontrados.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['data', 'nextCursor'],
+                  properties: {
+                    data: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/User' },
+                    },
+                    nextCursor: { type: 'string', nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          400: errorResponse,
+          401: errorResponse,
+          403: errorResponse,
+          500: errorResponse,
         },
       },
     },
@@ -292,7 +482,77 @@ const openapi = {
     },
   },
   components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
     schemas: {
+      LoginInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['email', 'password'],
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+            example: 'admin@example.com',
+          },
+          password: { type: 'string', minLength: 1, maxLength: 4096 },
+        },
+      },
+      RefreshInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['refreshToken'],
+        properties: {
+          refreshToken: {
+            type: 'string',
+            minLength: 1,
+            example: '<firebase-refresh-token>',
+          },
+        },
+      },
+      SessionResponse: {
+        type: 'object',
+        required: ['data'],
+        properties: {
+          data: {
+            type: 'object',
+            required: ['idToken', 'refreshToken', 'expiresIn', 'user'],
+            properties: {
+              idToken: { type: 'string', example: '<firebase-id-token>' },
+              refreshToken: {
+                type: 'string',
+                example: '<firebase-refresh-token>',
+              },
+              expiresIn: { type: 'string', example: '3600' },
+              user: { $ref: '#/components/schemas/User' },
+            },
+          },
+        },
+      },
+      User: {
+        type: 'object',
+        required: ['id', 'name', 'email', 'role', 'active'],
+        properties: {
+          id: { type: 'string' },
+          uid: { type: 'string' },
+          name: { type: 'string', nullable: true },
+          email: { type: 'string', format: 'email', nullable: true },
+          role: {
+            type: 'string',
+            nullable: true,
+            enum: ['admin', 'stock', 'client'],
+          },
+          store_id: { type: 'string', nullable: true },
+          permissions: { type: 'array', items: { type: 'string' } },
+          active: { type: 'boolean' },
+          created_at: { type: 'string', nullable: true },
+        },
+      },
       Error: {
         type: 'object',
         required: ['status', 'message'],

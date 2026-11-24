@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
 import '../../../design_system/theme/colors/app_colors.dart';
 import '../../../design_system/tile/product_tile.dart';
 import '../../../design_system/input/app_input.dart';
@@ -14,11 +16,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final HomeController controller = HomeController();
+  late final HomeController controller;
 
   @override
   void initState() {
     super.initState();
+    controller = GetIt.I<HomeController>();
     controller.onInit();
   }
 

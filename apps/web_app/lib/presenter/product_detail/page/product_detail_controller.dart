@@ -1,5 +1,5 @@
 import 'package:web_app/app/utils/command.dart';
-import 'package:web_app/data/models/product_model.dart';
+import 'package:web_app/features/products/domain/model/product_model.dart';
 
 class ProductDetailController {
   Command<ProductModel?> product = Command<ProductModel?>(data: null);
