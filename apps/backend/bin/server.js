@@ -2,12 +2,13 @@ import 'dotenv/config';
 import app from '../src/app.js';
 
 const port = Number(process.env.PORT ?? 3000);
+const host = '0.0.0.0';
 
 if (!Number.isInteger(port) || port < 0 || port > 65_535) {
   throw new Error('PORT deve ser um número entre 0 e 65535.');
 }
 
-const server = app.listen(port, () => {
+const server = app.listen(port, host, () => {
   console.log(`Backend Click & Collect disponível na porta ${port}`);
 });
 
