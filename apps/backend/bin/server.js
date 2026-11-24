@@ -9,7 +9,7 @@ if (!Number.isInteger(port) || port < 0 || port > 65_535) {
 }
 
 const server = app.listen(port, host, () => {
-  console.log(`Backend Click & Collect disponível na porta ${port}`);
+  console.log(`Backend Click & Collect host ${host} disponível na porta ${port}`);
 });
 
 function shutdown(signal) {
