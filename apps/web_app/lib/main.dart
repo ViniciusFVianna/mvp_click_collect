@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
+
 import 'app/app.dart';
 import 'app/injection/injector.dart';
 import 'app/navigation/router_register.dart';
