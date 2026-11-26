@@ -1,12 +1,11 @@
+import 'package:get_it/get_it.dart';
 import 'package:web_app/share/util/command.dart';
 import 'package:web_app/features/products/domain/model/product_model.dart';
 import 'package:web_app/features/products/domain/usecases/get_products_usecase.dart';
 
 class HomeController {
-  final GetProductsUseCase _getProducts;
 
-  HomeController({required GetProductsUseCase getProducts})
-      : _getProducts = getProducts;
+  GetProductsUseCase getProducts = GetIt.I<GetProductsUseCase>();
 
   Command<List<ProductModel>> products = Command<List<ProductModel>>(data: []);
   Command<String> selectedCategory = Command<String>(data: 'Todos');
@@ -18,7 +17,7 @@ class HomeController {
 
   Future<void> fetchProducts() async {
     products.setLoading(true);
-    final result = await _getProducts();
+    final result = await getProducts();
     result.when(
       success: (list) {
         products.setData(list);
@@ -38,11 +37,15 @@ class HomeController {
 
   List<ProductModel> get filteredProducts {
     return products.data.where((product) {
-      final matchesCategory = selectedCategory.data == 'Todos' ||
+      final matchesCategory =
+          selectedCategory.data == 'Todos' ||
           product.category.toLowerCase() == selectedCategory.data.toLowerCase();
-      final matchesSearch = searchQuery.data.isEmpty ||
+      final matchesSearch =
+          searchQuery.data.isEmpty ||
           product.name.toLowerCase().contains(searchQuery.data.toLowerCase()) ||
-          product.description.toLowerCase().contains(searchQuery.data.toLowerCase());
+          product.description.toLowerCase().contains(
+            searchQuery.data.toLowerCase(),
+          );
       return matchesCategory && matchesSearch;
     }).toList();
   }

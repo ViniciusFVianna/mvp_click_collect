@@ -1,5 +1,5 @@
 import 'package:design_system/design_system.dart' as design_system;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../features/products/domain/model/product_model.dart';
 

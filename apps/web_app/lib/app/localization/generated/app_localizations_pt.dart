@@ -18,5 +18,5 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   AppLocalizationsPtBr() : super('pt_BR');
 
   @override
-  String get appTitle => 'Click & Collect';
+  String get appTitle => 'Mega Loja';
 }

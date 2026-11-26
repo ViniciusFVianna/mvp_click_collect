@@ -1,5 +1,7 @@
 import 'package:design_system/design_system.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:get_it/get_it.dart';
+
 import 'splash_controller.dart';
 
 class SplashPage extends StatefulWidget {
@@ -10,11 +12,12 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  final SplashController controller = SplashController();
+  late final SplashController controller;
 
   @override
   void initState() {
     super.initState();
+    controller = GetIt.I<SplashController>();
     controller.onInit();
   }
 
@@ -58,10 +61,7 @@ class _SplashPageState extends State<SplashPage> {
             const SizedBox(height: 8),
             const Text(
               'E-Commerce com Retirada em Loja',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 48),
             const CircularProgressIndicator(

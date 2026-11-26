@@ -7,7 +7,8 @@ class AuthController {
   Command<String?> tokenState = Command<String?>(data: null);
   Command<String?> errorMessage = Command<String?>(data: null);
 
-  AuthController(this._loginUseCase);
+  AuthController({required LoginUseCase loginUseCase})
+    : _loginUseCase = loginUseCase;
 
   Future<void> login(String email, String password) async {
     tokenState.setLoading(true);

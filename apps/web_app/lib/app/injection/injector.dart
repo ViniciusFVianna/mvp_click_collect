@@ -4,6 +4,7 @@ import '../../features/auth/injection/auth_injector.dart';
 import '../../features/orders/injection/order_injector.dart';
 import '../../features/products/injection/products_injector.dart';
 import '../../features/stores/injection/stores_injector.dart';
+import '../../presenter/splash/injection/splash_injector.dart';
 
 class Injector {
   Injector._();
@@ -18,6 +19,7 @@ class Injector {
     injectors.add(OrderInjector());
     injectors.add(ProductsInjector());
     injectors.add(StoresInjector());
+    injectors.add(SplashInjector());
   }
 
   void call() {

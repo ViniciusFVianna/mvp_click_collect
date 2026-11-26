@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+
 import '../../../../app/injection/injector_base.dart';
 import '../../../../presenter/auth/page/auth_controller.dart';
 import '../../../../share/boundaries/secure_storage_facade.dart';
@@ -33,7 +34,7 @@ class AuthInjector implements InjectorBase {
       () => GetTokenUseCaseImpl(repository: GetIt.I<AuthRepository>()),
     );
     GetIt.I.registerFactory<AuthController>(
-      () => AuthController(GetIt.I<LoginUseCase>()),
+      () => AuthController(loginUseCase: GetIt.I<LoginUseCase>()),
     );
   }
 }

@@ -9,8 +9,6 @@ import '../domain/repository/products_repository.dart';
 import '../domain/usecases/get_product_by_id_usecase.dart';
 import '../domain/usecases/get_products_usecase.dart';
 
-import '../../../../presenter/home/page/home_controller.dart';
-
 class ProductsInjector implements InjectorBase {
   @override
   void call() {
@@ -27,8 +25,6 @@ class ProductsInjector implements InjectorBase {
       () =>
           GetProductByIdUseCaseImpl(repository: GetIt.I<ProductsRepository>()),
     );
-    GetIt.I.registerFactory<HomeController>(
-      () => HomeController(getProducts: GetIt.I<GetProductsUseCase>()),
-    );
+
   }
 }

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../design_system/theme/colors/app_colors.dart';
 import '../../../design_system/tile/product_tile.dart';
@@ -16,12 +15,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final HomeController controller;
+  final HomeController controller = HomeController();
 
   @override
   void initState() {
     super.initState();
-    controller = GetIt.I<HomeController>();
     controller.onInit();
   }
 
@@ -107,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: const [
                                 Text(
-                                  'Retire na Loja mais Próxima! 🚀',
+                                  'Retire na Loja mais Próxima!',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -144,27 +142,37 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    SizedBox(
-                      height: 38,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: controller.categories.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          final cat = controller.categories[index];
-                          final isSelected = controller.selectedCategory.data == cat;
-                          return ChoiceChip(
-                            label: Text(cat),
-                            selected: isSelected,
-                            selectedColor: AppColors.primaryBase,
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.textPrimary,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            ),
-                            onSelected: (_) => controller.selectCategory(cat),
-                          );
-                        },
-                      ),
+                    Row(
+                      mainAxisAlignment: .center,
+                      spacing: 16,
+                      children: controller.categories.map((cat) {
+                        final isSelected = controller.selectedCategory.data == cat;
+                        return InkWell(
+                          onTap: () => controller.selectCategory(cat),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          
+                            child: Column(
+                                mainAxisAlignment: .start,
+                                crossAxisAlignment: .center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 40,
+                                    backgroundColor:AppColors.primaryBase,
+                                    child: _getCategoryIcon(cat, isSelected),
+                                  ),
+                                  Text(
+                                    cat,
+                                    style: TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          )
+                        );
+                      }).toList(),
                     ),
                     const SizedBox(height: 24),
 
@@ -236,5 +244,20 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  Widget _getCategoryIcon(String category, bool isSelected) {
+    switch (category.toLowerCase()) {
+      case 'eletrônicos':
+        return  Icon(Icons.devices_outlined, size: 30, color: isSelected ? Colors.white : AppColors.textPrimary);
+      case 'televisores':
+        return Icon(Icons.tv_outlined, size: 30, color: isSelected ? Colors.white : AppColors.textPrimary);
+      case 'eletroportáteis':
+        return Icon(Icons.laptop_outlined, size: 30, color: isSelected ? Colors.white : AppColors.textPrimary);
+      case 'informática':
+        return Icon(Icons.devices_outlined, size: 30, color: isSelected ? Colors.white : AppColors.textPrimary);
+      default:
+        return Icon(Icons.category_outlined, size: 30, color: isSelected ? Colors.white : AppColors.textPrimary);
+    }
   }
 }

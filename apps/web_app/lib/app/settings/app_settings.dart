@@ -13,7 +13,7 @@ class AppSettings {
 
   static const String defaultBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.130.121:3000',
+    defaultValue: 'http://192.168.2.131:3000',
   );
 
   static Uri get apiBaseUri {
@@ -22,7 +22,7 @@ class AppSettings {
       return Uri.parse(configuredBaseUrl);
     }
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return Uri.parse('http://192.168.130.121:3000/');
+      return Uri.parse('http://192.168.2.131:3000/');
     }
     return Uri.parse(defaultBaseUrl);
   }
