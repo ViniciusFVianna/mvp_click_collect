@@ -41,10 +41,20 @@ O schema canônico das tabelas `lojas`, `estoque_loja` e `pedidos` está em [`ap
 ### **Cliente / Checkout**
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `GET` | `/api/stores?cep={cep}&produto_id={id}` | Lista lojas ativas com pelo menos 2 unidades do produto. A ordenação por CEP é uma aproximação, não uma distância geográfica. |
+| `GET` | `/api/stores` | Lista todas as lojas. |
+| `GET` | `/api/stores?cep={cep}&produto_id={id}` | Filtra lojas ativas pelo CEP e por pelo menos 2 unidades do produto. Os dois parâmetros são obrigatórios para filtrar. |
 | `POST` | `/api/orders` | Cria o pedido `CLICK_COLLECT`, reserva uma unidade em transação e gera PIN e token de QR Code. |
+| `GET` | `/api/products` | Lista os produtos. |
+| `GET` | `/api/products/{id}` | Consulta um produto pelo ID. |
+| `POST` | `/api/products` | Cria um produto; `id` é opcional e pode ser gerado pelo Firestore. |
+| `PUT` | `/api/products/{id}` | Substitui os dados do produto existente. |
+| `DELETE` | `/api/products/{id}` | Exclui o documento do produto. |
 
 Os endpoints de consulta de pedidos e de operação administrativa descritos no fluxo abaixo ficam para a Fase 2 do MVP. O endpoint `GET /health` verifica a disponibilidade da API.
+
+> **Atenção:** atualmente as operações de produtos não exigem autenticação. Restrinja o acesso antes de disponibilizar essa API publicamente.
+
+A documentação interativa Swagger UI fica disponível em `http://localhost:3000/api-docs`, e a especificação OpenAPI em `http://localhost:3000/api-docs.json`.
 
 ---
 
@@ -73,21 +83,55 @@ npm run dev
 ```
 > O servidor estará rodando em: `http://localhost:3000`
 
----
-
-### **2. Executando o Frontend (Flutter Web)**
+Para popular o Firestore com as lojas e produtos de demonstração, configure as credenciais ADC no `.env` do backend e execute:
 
 ```bash
-# Acesse a pasta do aplicativo Flutter
+npm run seed:stores
+npm run seed:products
+npm run seed:users
+```
+
+O seed de produtos cria os documentos na coleção `products` e grava cada quantidade na subcoleção `stores/{storeId}/stock`.
+O seed de usuários grava os documentos na coleção `users`; ele não cria contas no Firebase Authentication.
+
+---
+
+### **2. Executando os Frontends (Flutter)**
+
+Inicie o backend em um terminal:
+
+```bash
+cd apps/backend
+npm start
+```
+
+Para executar a loja virtual no Chrome:
+
+```bash
 cd apps/web_app
-
-# Instale os pacotes e dependências do Flutter
 flutter pub get
-
-# Execute a aplicação no navegador Chrome
 flutter run -d chrome
 ```
-> A aplicação estará acessível em: `http://localhost:8080`
+
+Para executar o painel admin no Chrome, use `apps/front_adm` no lugar de
+`apps/web_app`.
+
+No Android Emulator, execute qualquer uma das aplicações com:
+
+```bash
+flutter run -d emulator-5554
+```
+
+O endereço padrão da API é `http://localhost:3000` na Web e
+`http://10.0.2.2:3000` no Android Emulator. Para um dispositivo físico ou outro
+ambiente, configure `API_BASE_URL`, por exemplo:
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=https://api.example.com
+```
+
+O backend atual ainda não oferece `GET /api/orders`; por isso, a tela de pedidos
+do painel admin exibirá o erro da API até essa rota ser implementada.
 
 ---
 
