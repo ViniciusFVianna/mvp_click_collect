@@ -6,7 +6,7 @@ const users = [
   {
     id: 'user_admin_01',
     name: 'Carlos Gerente',
-    email: 'carlos.admin@megaloja.com.br',
+    email: '',
     role: 'admin',
     store_id: null,
     permissions: [

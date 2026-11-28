@@ -1,8 +1,15 @@
 import { createHash, randomBytes, randomInt } from 'node:crypto';
 import { HttpError } from '../errors/http-error.js';
-import { createOrderAndReserveStock } from './orders.repository.js';
+import {
+  createOrderAndReserveStock,
+  listOrders as findOrders,
+} from './orders.repository.js';
 
 const hashCode = (code) => createHash('sha256').update(code).digest('hex');
+
+export async function listOrders() {
+  return findOrders();
+}
 
 export async function createOrder(orderInput) {
   const pin = randomInt(0, 10_000).toString().padStart(4, '0');

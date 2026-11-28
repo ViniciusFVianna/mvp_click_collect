@@ -439,6 +439,43 @@ const openapi = {
       },
     },
     '/api/orders': {
+      get: {
+        tags: ['Pedidos'],
+        summary: 'Lista os pedidos',
+        description:
+          'Retorna os pedidos cadastrados, sem os dados sensíveis usados internamente na retirada.',
+        responses: {
+          200: {
+            description: 'Pedidos encontrados.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          cliente_nome: { type: 'string' },
+                          cliente_cpf: { type: 'string' },
+                          produto_id: { type: 'string' },
+                          loja_id: { type: 'string' },
+                          modalidade_entrega: { type: 'string' },
+                          status: { type: 'string' },
+                          created_at: { type: 'string', nullable: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: { description: 'Erro interno do servidor.' },
+        },
+      },
       post: {
         tags: ['Pedidos'],
         summary: 'Cria pedido e reserva estoque',

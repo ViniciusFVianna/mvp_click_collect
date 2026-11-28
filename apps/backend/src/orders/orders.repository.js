@@ -2,6 +2,43 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 import { HttpError } from '../errors/http-error.js';
 
+const ordersCollection = db.collection('orders');
+
+function toTimestamp(value) {
+  if (value?.toDate instanceof Function) {
+    return value.toDate().toISOString();
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  return value ?? null;
+}
+
+function toPublicOrder(document) {
+  const order = document.data();
+
+  return {
+    id: document.id,
+    cliente_nome: order.customerName ?? order.cliente_nome ?? null,
+    cliente_cpf: order.customerCpf ?? order.cliente_cpf ?? null,
+    terceiro_autorizado_nome:
+      order.authorizedPersonName ?? order.terceiro_autorizado_nome ?? null,
+    terceiro_autorizado_cpf:
+      order.authorizedPersonCpf ?? order.terceiro_autorizado_cpf ?? null,
+    produto_id: order.productId ?? order.produto_id ?? null,
+    loja_id: order.storeId ?? order.loja_id ?? null,
+    modalidade_entrega:
+      order.deliveryMethod ?? order.modalidade_entrega ?? 'CLICK_COLLECT',
+    status: order.status ?? 'PENDENTE',
+    created_at: toTimestamp(order.createdAt),
+  };
+}
+
+export async function listOrders() {
+  const snapshot = await ordersCollection.get();
+  return snapshot.docs.map(toPublicOrder);
+}
+
 export async function createOrderAndReserveStock({
   orderId,
   storeId,

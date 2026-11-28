@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:front_adm/features/auth/data/datasource/auth_datasource_impl.dart';
 import 'package:front_adm/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:front_adm/features/orders/data/datasource/orders_datasource_impl.dart';
+import 'package:front_adm/features/orders/data/repository/orders_repository_impl.dart';
 import 'package:front_adm/features/products/data/datasource/products_datasource_impl.dart';
 import 'package:front_adm/features/products/data/repository/products_repository_impl.dart';
 import 'package:front_adm/share/boundaries/secure_storage_facade.dart';
@@ -9,6 +11,36 @@ import 'package:front_adm/share/network/custom_http_response.dart';
 
 void main() {
   const baseUri = 'http://localhost:3000';
+
+  test('loads orders from the backend data envelope', () async {
+    final client = _FakeHttpClient(
+      _response(200, {
+        'data': [
+          {
+            'id': 'order-001',
+            'cliente_nome': 'Maria da Silva',
+            'cliente_cpf': '12345678901',
+            'produto_id': 'prod-001',
+            'loja_id': 'store-001',
+            'modalidade_entrega': 'CLICK_COLLECT',
+            'status': 'PENDENTE',
+          },
+        ],
+      }),
+    );
+    final repository = OrdersRepositoryImpl(
+      datasource: OrdersDatasourceImpl(
+        http: client,
+        baseUri: Uri.parse(baseUri),
+      ),
+    );
+
+    final result = await repository.getOrders();
+
+    expect(result.isSuccess, isTrue);
+    expect(result.result.single.id, 'order-001');
+    expect(client.lastUri?.path, '/api/orders');
+  });
 
   test('maps the backend data envelope into products', () async {
     final client = _FakeHttpClient(

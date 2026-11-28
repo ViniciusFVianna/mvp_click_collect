@@ -1,7 +1,7 @@
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
+import '../../../features/orders/domain/model/order_model.dart';
 import '../../../features/stores/domain/model/store_model.dart';
 import 'home_controller.dart';
 
@@ -13,17 +13,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final HomeController controller;
+  final HomeController controller = HomeController();
 
   @override
   void initState() {
     super.initState();
-    controller = GetIt.I<HomeController>();
     controller.onInit();
     controller.stores.addListener(_onStateChanged);
     controller.searchQuery.addListener(_onStateChanged);
     controller.cep.addListener(_onStateChanged);
     controller.produtoId.addListener(_onStateChanged);
+    controller.orders.addListener(_onStateChanged);
+    controller.orderSearchQuery.addListener(_onStateChanged);
   }
 
   @override
@@ -32,6 +33,8 @@ class _HomePageState extends State<HomePage> {
     controller.searchQuery.removeListener(_onStateChanged);
     controller.cep.removeListener(_onStateChanged);
     controller.produtoId.removeListener(_onStateChanged);
+    controller.orders.removeListener(_onStateChanged);
+    controller.orderSearchQuery.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -42,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final filteredStores = controller.filteredStores;
+    final filteredOrders = controller.filteredOrders;
 
     return Scaffold(
       appBar: AppBar(
@@ -55,8 +59,11 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: controller.fetchStores,
-            tooltip: 'Atualizar lojas',
+            onPressed: () {
+              controller.fetchStores();
+              controller.fetchOrders();
+            },
+            tooltip: 'Atualizar dados',
           ),
         ],
       ),
@@ -107,56 +114,130 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+
+
           Expanded(
-            child: controller.stores.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : controller.stores.error != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Erro ao carregar lojas: ${controller.stores.error}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: controller.fetchStores,
-                          child: const Text('Tentar novamente'),
-                        ),
-                      ],
-                    ),
-                  )
-                : filteredStores.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Nenhuma loja encontrada.',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 16,
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredStores.length,
-                    itemBuilder: (context, index) {
-                      final store = filteredStores[index];
-                      return _buildStoreCard(store);
-                    },
-                  ),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildStoresSection(),
+                const SizedBox(height: 16),
+                _buildOrdersSection(filteredOrders),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStoresSection() {
+    if (controller.stores.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (controller.stores.error != null) {
+      return _buildError(
+        message: 'Erro ao carregar lojas: ${controller.stores.error}',
+        onRetry: controller.fetchStores,
+      );
+    }
+    if (controller.filteredStores.isEmpty) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text(
+            'Nenhuma loja encontrada.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: ExpansionTile(
+        backgroundColor: Colors.white,
+        title: Text('Lojas (${controller.filteredStores.length})'),
+        children: controller.filteredStores.map(_buildStoreCard).toList(),
+      ),
+    );
+  }
+
+  Widget _buildOrdersSection(List<OrderResponseModel> filteredOrders) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppInput(
+          label: 'Buscar pedido',
+          hint: 'ID, cliente, loja, produto ou status...',
+          prefixIcon: Icons.search,
+          onChanged: controller.setOrderSearchQuery,
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton.icon(
+          onPressed: controller.fetchOrders,
+          icon: const Icon(Icons.search),
+          label: const Text('Buscar pedidos'),
+        ),
+        const SizedBox(height: 12),
+        if (controller.orders.isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (controller.orders.error != null)
+          _buildError(
+            message: 'Erro ao carregar pedidos: ${controller.orders.error}',
+            onRetry: controller.fetchOrders,
+          )
+        else if (filteredOrders.isEmpty)
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Nenhum pedido encontrado.',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 16),
+              ),
+            ),
+          )
+        else
+          Card(
+            child: ExpansionTile(
+              backgroundColor: Colors.white,
+              title: Text('Pedidos (${filteredOrders.length})'),
+              children: filteredOrders.map(_buildOrderCard).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildError({required String message, required VoidCallback onRetry}) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline, size: 40, color: AppColors.error),
+            const SizedBox(height: 8),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const Text('Tentar novamente'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderCard(OrderResponseModel order) {
+    return ListTile(
+      leading: const Icon(Icons.receipt_long, color: AppColors.primaryBase),
+      title: Text(order.clienteNome.isEmpty ? order.id : order.clienteNome),
+      subtitle: Text(
+        'Pedido: ${order.id}\n'
+        'Loja: ${order.lojaId} • Produto: ${order.produtoId}\n'
+        'Status: ${order.status}',
+      ),
+      isThreeLine: true,
     );
   }
 

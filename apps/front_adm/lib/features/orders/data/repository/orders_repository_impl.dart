@@ -12,6 +12,24 @@ class OrdersRepositoryImpl implements OrdersRepository {
     : _datasource = datasource;
 
   @override
+  Future<Result<List<OrderResponseModel>, OrdersFailure>> getOrders() async {
+    final response = await _datasource.getOrders();
+    return response.when(
+      success: (items) {
+        try {
+          return Success(items.map(OrderResponseModel.fromJson).toList());
+        } catch (error) {
+          errorLog(error.toString(), tag: 'OrdersRepositoryImpl.getOrders');
+          return Failure(
+            OrdersFailure(message: 'Resposta inválida de pedidos: $error'),
+          );
+        }
+      },
+      exception: (error) => Failure(OrdersFailure(message: error.toString())),
+    );
+  }
+
+  @override
   Future<Result<OrderResponseModel, OrdersFailure>> createOrder(
     CreateOrderParams params,
   ) async {

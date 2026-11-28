@@ -22,7 +22,7 @@ class AppSettings {
       return Uri.parse(configuredBaseUrl);
     }
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return Uri.parse('http://10.0.2.2:3000');
+      return Uri.parse('http://localhost:3000');
     }
     return Uri.parse(defaultBaseUrl);
   }

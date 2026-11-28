@@ -7,6 +7,7 @@ import '../data/datasource/orders_datasource_impl.dart';
 import '../data/repository/orders_repository_impl.dart';
 import '../domain/repository/orders_repository.dart';
 import '../domain/usecases/create_order_usecase.dart';
+import '../domain/usecases/get_orders_usecase.dart';
 
 class OrdersInjector implements InjectorBase {
   @override
@@ -20,6 +21,8 @@ class OrdersInjector implements InjectorBase {
     GetIt.I.registerFactory<CreateOrderUseCase>(
       () => CreateOrderUseCaseImpl(repository: GetIt.I<OrdersRepository>()),
     );
-
+    GetIt.I.registerFactory<GetOrdersUseCase>(
+      () => GetOrdersUseCaseImpl(repository: GetIt.I<OrdersRepository>()),
+    );
   }
 }

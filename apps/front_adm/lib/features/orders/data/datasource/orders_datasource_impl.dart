@@ -14,6 +14,18 @@ class OrdersDatasourceImpl implements OrdersDatasource {
       _baseUri = baseUri ?? AppSettings.apiBaseUri;
 
   @override
+  Future<Result<List<Map<String, dynamic>>, Exception>> getOrders() async {
+    try {
+      return HttpResponseParser.asList(
+        await _http.get(_baseUri.resolve('/api/orders')),
+      );
+    } catch (e) {
+      errorLog(e.toString(), tag: 'OrdersDatasourceImpl.getOrders');
+      return Failure(Exception(e.toString()));
+    }
+  }
+
+  @override
   Future<Result<Map<String, dynamic>, Exception>> createOrder(
     Map<String, dynamic> body,
   ) async {
@@ -22,6 +34,7 @@ class OrdersDatasourceImpl implements OrdersDatasource {
         _baseUri.resolve('/api/orders'),
         body: body,
       );
+      debugLog('${response.body}');
       return HttpResponseParser.asObject(response);
     } catch (e) {
       errorLog(e.toString(), tag: 'OrdersDatasourceImpl');

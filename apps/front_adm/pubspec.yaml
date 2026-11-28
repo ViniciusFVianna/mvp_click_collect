@@ -42,6 +42,7 @@ dependencies:
   material_symbols_icons: ^4.2928.1
   design_system:
     path: ./packages/design_system
+  material_ui: ^1.11.1
 
 dev_dependencies:
   flutter_test:
